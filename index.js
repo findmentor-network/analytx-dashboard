@@ -13,7 +13,8 @@ app.get('/', function (req,res) {
 });
 
 app.get('/count', async (req, res) => {
-  res.json({count: await count("https://findmentor.network")})
+  const { span, range } = req.query;
+  res.json({count: await count("https://findmentor.network", Number(span), Number(range))})
 })
 
 connect().then(() => {
