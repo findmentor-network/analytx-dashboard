@@ -69,7 +69,48 @@ const condGenerator = (hours, index = 0) => {
   }
 }
 
+const mostFrequentlyVisited = (url, range) => {
+  const { host } = new URL(fixProtocol(url));
+  var date = new Date();
+  date.setHours(date.getHours() - range);
+  // En cok ziyaret almis sayfalari coktan aza siralicaz.
+  return db
+    .collection(host)
+    .aggregate([
+      {
+        $match: {
+          date: { $gte: date.valueOf() },
+        },
+      },
+      { $group: { _id: "$pathname", count: { $sum: 1 } } },
+      { $sort: { "count": -1 } },
+    ])
+    .toArray();
+}
+
+const referrers = (url, range) => {
+  const { host } = new URL(fixProtocol(url));
+  var date = new Date();
+  date.setHours(date.getHours() - range);
+  // En cok ziyaret almis sayfalari coktan aza siralicaz.
+  return db
+    .collection(host)
+    .aggregate([
+      {
+        $match: {
+          date: { $gte: date.valueOf() },
+        },
+      },
+      { $group: { _id: "$referrer", count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+    ])
+    .toArray();
+};
+
 
 module.exports = {
-  connect, count,
+  connect,
+  count,
+  mostFrequentlyVisited,
+  referrers,
 };

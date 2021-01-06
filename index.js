@@ -1,5 +1,5 @@
 const express = require('express')
-const { connect, count } = require("./db");
+const { connect, count, mostFrequentlyVisited, referrers } = require("./db");
 const app = express()
 const cors = require("cors")
 const port = 3000
@@ -20,6 +20,21 @@ app.get('/count', async (req, res) => {
   let result = await count("https://findmentor.network", Number(span), Number(range));
   res.json(result)
 })
+
+app.get("/pathVisited", async (req, res) => {
+  const { range } = req.query;
+  let result = await mostFrequentlyVisited(
+    "https://findmentor.network",
+    Number(range)
+  );
+  res.json(result);
+});
+
+app.get("/referrers", async (req, res) => {
+  const { range } = req.query;
+  let result = await referrers("https://findmentor.network", Number(range));
+  res.json(result);
+});
 
 connect().then(() => {
   app.listen(port, (_) => {
