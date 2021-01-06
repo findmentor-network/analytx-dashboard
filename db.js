@@ -11,21 +11,25 @@ async function connect() {
   db = client.db('analytics');
 }
 
-const count = (url, span = 30, range = 2) => {
+const count = async (url, span = 30, range = 2) => {
   const { host, pathname } = new URL(fixProtocol(url));
 
   var hours = [];
+  var labels = [];
   var date = new Date();
   var sliceCount = (range * 60) / span;
+  var sorted = Array(sliceCount).fill(0);
   date.setHours(date.getHours() - range);
   date.setMilliseconds(0);
   while (sliceCount) {
-    let a = date.setMinutes(date.getMinutes() + span);
+    var a = date.setMinutes(date.getMinutes() + span);
+    var hour = String(date.getHours());
+    var minute = String(date.getMinutes());
     hours.push(a);
+    labels.push(`${hour.padStart(2, 0)}:${minute.padStart(2, 0)}`);
     sliceCount--;
   }
-
-  return db.collection(host).aggregate([
+  let result = await db.collection(host).aggregate([
     {
       "$match": {
         "date": { "$gte": hours[ 0 ], "$lte": hours[ hours.length - 1 ] },
@@ -37,7 +41,17 @@ const count = (url, span = 30, range = 2) => {
         "count": { "$sum": 1 }
       }
     }
-  ]).toArray();
+  ]).toArray()
+  
+  for (var i = 0; i < result.length; i++) {
+    var element = result[i];
+    sorted[element._id - 1] = element.count;
+  }
+
+  return {
+    labels,
+    data: sorted,
+  };
 };
 
 const condGenerator = (hours, index = 0) => {

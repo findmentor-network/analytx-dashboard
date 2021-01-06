@@ -1,12 +1,15 @@
 const express = require('express')
 const { connect, count } = require("./db");
 const app = express()
+const cors = require("cors")
 const port = 3000
 
 const path = __dirname + '/app/dist/';
 
 app.use(express.static(path));
 app.use(express.json());
+app.use(cors());
+app.options("*", cors());
 
 app.get('/', function (req,res) {
   res.sendFile(`${path}index.html`);
@@ -14,7 +17,8 @@ app.get('/', function (req,res) {
 
 app.get('/count', async (req, res) => {
   const { span, range } = req.query;
-  res.json({count: await count("https://findmentor.network", Number(span), Number(range))})
+  let result = await count("https://findmentor.network", Number(span), Number(range));
+  res.json(result)
 })
 
 connect().then(() => {
