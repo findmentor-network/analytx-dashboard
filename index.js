@@ -3,7 +3,7 @@ const { connect, count, mostFrequentlyVisited, referrers } = require("./db");
 const app = express()
 const cors = require("cors")
 const port = 3000
-
+const {getHREF} = require('./utils')
 const path = __dirname + '/app/dist/';
 
 app.use(express.static(path));
@@ -15,24 +15,27 @@ app.get('/', function (req,res) {
   res.sendFile(`${path}index.html`);
 });
 
-app.get('/count', async (req, res) => {
+app.get('/count/*', async (req, res) => {
   const { span, range } = req.query;
-  let result = await count("https://findmentor.network", Number(span), Number(range));
+  const hostname = getHREF(req)
+  let result = await count(hostname, Number(span), Number(range));
   res.json(result)
 })
 
-app.get("/pathVisited", async (req, res) => {
+app.get("/pathVisited/*", async (req, res) => {
   const { range } = req.query;
+  const hostname = getHREF(req);
   let result = await mostFrequentlyVisited(
-    "https://findmentor.network",
+    hostname,
     Number(range)
   );
   res.json(result);
 });
 
-app.get("/referrers", async (req, res) => {
+app.get("/referrers/*", async (req, res) => {
   const { range } = req.query;
-  let result = await referrers("https://findmentor.network", Number(range));
+  const hostname = getHREF(req);
+  let result = await referrers(hostname, Number(range));
   res.json(result);
 });
 

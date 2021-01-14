@@ -6,7 +6,8 @@ let db;
 
 // connects to db
 async function connect() {
-  const URI = process.env.MONGO_URI || 'mongodb://localhost:27017';
+  const URI =
+    process.env.MONGO_URI || "mongodb://analytx:VNZazPtwakiIQOhB6h2hvtQpKAyrvU@135.181.150.199:27017/analytics"
   client = await MongoClient.connect(URI, { useUnifiedTopology: true });
   db = client.db('analytics');
 }
@@ -92,7 +93,7 @@ const referrers = (url, range) => {
   const { host } = new URL(fixProtocol(url));
   var date = new Date();
   date.setHours(date.getHours() - range);
-  // En cok ziyaret almis sayfalari coktan aza siralicaz.
+
   return db
     .collection(host)
     .aggregate([
