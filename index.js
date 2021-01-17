@@ -2,7 +2,7 @@ const express = require('express')
 const { connect, count, mostFrequentlyVisited, referrers } = require("./db");
 const app = express()
 const cors = require("cors")
-const port = 3000
+const port = process.env.PORT || 9000
 const {getHREF} = require('./utils')
 
 app.use(express.json());
